@@ -1,0 +1,84 @@
+\documentclass[12pt,fleqn]{article}
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage[hypertexnames=false,bookmarksnumbered=true,final]{hyperref}
+\usepackage[capitalize,sort]{cleveref}
+
+\colorlet{textColor}{black}
+\colorlet{bgColor}{white}
+\colorlet{textBlue}{blue!50!textColor}
+\colorlet{textRed}{red!50!textColor}
+\hypersetup{colorlinks,linkcolor=textRed,citecolor=textRed,urlcolor=textBlue}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\allowdisplaybreaks
+%\algnewcommand{\LineComment}[1]{\State \textcolor{gray}{\texttt{//} \textit{#1}}}
+%\renewcommand{\algorithmiccomment}[1]{\hfill\textcolor{gray}{\texttt{//} \textit{#1}}}
+
+\newcommand*{\defeq}{:=}
+\DeclareMathOperator{\conv}{conv}
+
+\title{Theorems}
+\author{\empty}
+\date{\empty}
+
+\begin{document}
+
+\maketitle
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+
+\section{Abstract Algebra}
+\label{sec:abstract-algebra}
+
+\begin{definition}
+\label{defn:monoid}
+A monoid $M$ is a set $S$ along with a binary operator $\circ: S \times S \to S$ which satisfies these properties:
+\begin{enumerate}
+\item \label{item:monoid:assoc}\emph{Associativity}:
+    $\forall a, b, c \in S$, $(a \circ b) \circ c = a \circ (b \circ c)$.
+\item \label{item:monoid:identity}\emph{Existence of Identity}:
+    There exists an element $e \in S$, called an \emph{identity} of $S$, such that
+    $\forall a \in S$, $a \circ e = e \circ a = a$.
+\end{enumerate}
+\end{definition}
+
+\begin{lemma}
+\label{thm:monoid-unique-identity}
+Every monoid has a unique identity.
+\end{lemma}
+\begin{proof}
+Let $M = (S, \circ)$ be a monoid.
+Let $e_1$ and $e_2$ be any two (possibly identical) identities of $M$.
+Then $e_1 \circ e_2 = e_1$, because $e_2$ is an identity,
+and $e_1 \circ e_2 = e_2$, because $e_1$ is an identity.
+Hence, $e_1 = e_2$.
+Hence, $M$ has a unique identity
+\end{proof}
+
+\section{Convexity}
+\label{sec:convexity}
+
+\begin{definition}
+\label{defn:convex-hull}
+For a finite set $P \defeq \{x_1, \ldots, x_n\}$, the \emph{convex hull} of $P$ is defined as
+\[ \conv(P) \defeq \left\{\sum_{i=1}^n \alpha_ix_i \biggm| \alpha_i \in \mathbb{R}_{\ge 0}
+    \textrm{ and } \sum_{i=1}^n \alpha_i = 1\right\}. \]
+\end{definition}
+
+\begin{theorem}[Carath\'eodory's theorem \cite{caratheodory}]
+\label{thm:caratheodory}
+Let $x \in \conv(P)$, where $P \subseteq \mathbb{R}^d$ is a finite set.
+Then $x \in \conv(Q)$, where $Q \subseteq P$ and $|Q| \le d+1$.
+\end{theorem}
+
+\bibliographystyle{plainurl}
+\bibliography{bibdb}
+
+\end{document}
