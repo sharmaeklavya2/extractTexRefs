@@ -6,7 +6,7 @@ bibliographic entries, theorems, definitions, sections, etc.
 """
 
 from collections.abc import Sequence
-from typing import Optional, TextIO
+from typing import Any, Optional, TextIO
 import sys
 import argparse
 import json
@@ -36,7 +36,7 @@ def findEndBracket(s: str, beg: int, end: int) -> int:
     return beg
 
 
-def parseRecursiveBrackets(s: str, beg: int, end: Optional[int] = None) -> tuple[object, int]:
+def parseRecursiveBrackets(s: str, beg: int, end: Optional[int] = None) -> tuple[Any, int]:
     """
     Parses the grammar A -> S | ('{' + A + '}')+, where S is a string that doesn't start with '{' or '}'
     and contains matching nested '{' and '}'.
@@ -64,6 +64,8 @@ def deflesh(a: object) -> object:
         return None
     elif isinstance(a, Sequence):
         return [deflesh(x) for x in a]
+    else:
+        return None
 
 
 # For \newlabel{defn:monoid@cref}{{[definition][1][]1}{[1][1][]1}},
