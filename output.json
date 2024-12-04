@@ -1,0 +1,10 @@
+[
+{"type": "section", "texLabel": "sec:abstract-algebra", "outputId": "1", "anchor": "section.1", "page": "1", "context": "Abstract Algebra"},
+{"type": "definition", "texLabel": "defn:monoid", "outputId": "1", "anchor": "definition.2", "page": "1"},
+{"type": "enumi", "texLabel": "item:monoid:assoc", "outputId": "1", "anchor": "Item.3", "page": "1"},
+{"type": "enumi", "texLabel": "item:monoid:identity", "outputId": "2", "anchor": "Item.4", "page": "1"},
+{"type": "lemma", "texLabel": "thm:monoid-unique-identity", "outputId": "1", "anchor": "theorem.5", "page": "1"},
+{"type": "section", "texLabel": "sec:convexity", "outputId": "2", "anchor": "section.6", "page": "1", "context": "Convexity"},
+{"type": "definition", "texLabel": "defn:convex-hull", "outputId": "2", "anchor": "definition.7", "page": "1"},
+{"type": "theorem", "texLabel": "thm:caratheodory", "outputId": "2", "anchor": "theorem.8", "page": "1", "context": "Carath\\'eodory's theorem \\cite {caratheodory}"}
+]

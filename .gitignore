@@ -1,14 +1,11 @@
-*.aux
 *.bbl
 *.blg
 *.log
 *.out
 *.toc
-*.pdf
 *.pyc
 __pycache__/
 .mypy_cache/
-output.json
 
 *~
 *.sw[po]
