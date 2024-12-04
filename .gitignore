@@ -5,11 +5,10 @@
 *.out
 *.toc
 *.pdf
-/secret
-/output
 *.pyc
 __pycache__/
 .mypy_cache/
+output.json
 
 *~
 *.sw[po]
