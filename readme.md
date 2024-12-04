@@ -25,15 +25,20 @@ Then its entry in the `.aux` file will look something like this:
 {"type": "theorem", "texLabel": "odd-sq-is-odd", "outputId": "2", "anchor": "theorem.6", "page": "1"}
 ```
 
-A more complete example can be found in the `example` directory.
-Running the following commands will build `example/example.tex`
+A more complete example can be found in the `example` directory (see
+[`example.tex`](https://github.com/sharmaeklavya2/extractTexRefs/blob/main/example/example.tex)
+and [`example.pdf`](https://sharmaeklavya2.github.io/extractTexRefs/example/example.pdf)).
+Running the following commands will build
+[`example/example.tex`](https://github.com/sharmaeklavya2/extractTexRefs/blob/main/example/example.tex)
 and extract information about definitions, theorems, lemmas, sections, etc.
+from [`example/example.aux`](https://sharmaeklavya2.github.io/extractTexRefs/example/example.aux)
+to [`output.json`](https://sharmaeklavya2.github.io/extractTexRefs/output.json).
 
 ```
 cd example
 make
 cd ..
-python3 extractTexRefs.py example/example.aux
+python3 extractTexRefs.py example/example.aux -o output.json
 ```
 
 ## How it works
