@@ -68,14 +68,15 @@ def deflesh(a: object) -> object:
 
 # For \newlabel{defn:monoid@cref}{{[definition][1][]1}{[1][1][]1}},
 # output should be ['defn:monoid@cref', ['[definition][1][]1', '[1][1][]1']]
-def extractInfo(fp: TextIO):
+def extractInfo(fp: TextIO, include_bib: bool):
     output = []
     for line in fp:
         line = line.strip()
         if line.startswith('\\bibcite'):
-            info, _ = parseRecursiveBrackets(line, len('\\bibcite'))
-            assert deflesh(info) == [None, None]
-            output.append({'type': 'cite', 'texLabel': info[0], 'outputId': info[1], 'anchor': 'cite.' + info[0]})
+            if include_bib:
+                info, _ = parseRecursiveBrackets(line, len('\\bibcite'))
+                assert len(info) == 2
+                output.append({'type': 'cite', 'texLabel': info[0], 'anchor': 'cite.' + info[0]})
         elif line.startswith('\\newlabel'):
             info, _ = parseRecursiveBrackets(line, len('\\newlabel'))
             # print(info, file=sys.stderr)
@@ -123,9 +124,11 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('fpath', help='path to LaTeX aux file')
     parser.add_argument('-o', '--output', help='path to output JSON file')
+    parser.add_argument('--include-bib', action='store_true', default=False,
+        help='also include bibliography')
     args = parser.parse_args()
     with open(args.fpath) as fp:
-        output = extractInfo(fp)
+        output = extractInfo(fp, args.include_bib)
     if args.output:
         with open(args.output, 'w') as fp:
             myJsonOutput(output, fp)
