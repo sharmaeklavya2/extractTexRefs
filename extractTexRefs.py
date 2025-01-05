@@ -88,11 +88,12 @@ def extractInfo(fp: TextIO, include_bib: bool):
                     assert len(output) > 0
                     prevD = output[-1]
                     assert info[0][:-5] == prevD['texLabel']
-                    assert info[1][0][0] == '['
-                    closeI = info[1][0].find(']')
-                    assert closeI != -1
-                    type = info[1][0][1:closeI]
-                    prevD['type'] = type
+                    if info[1] and info[1][0]:
+                        assert info[1][0][0] == '['
+                        closeI = info[1][0].find(']')
+                        assert closeI != -1
+                        type = info[1][0][1:closeI]
+                        prevD['type'] = type
                 else:
                     assert deflesh(info) == [None, [None] * 5]
                     anchor = info[1][3]
