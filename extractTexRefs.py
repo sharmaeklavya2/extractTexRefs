@@ -74,35 +74,40 @@ def extractInfo(fp: TextIO, include_bib: bool):
     output = []
     for line in fp:
         line = line.strip()
-        if line.startswith('\\bibcite'):
-            if include_bib:
-                info, _ = parseRecursiveBrackets(line, len('\\bibcite'))
-                assert len(info) == 2
-                output.append({'type': 'cite', 'texLabel': info[0], 'anchor': 'cite.' + info[0]})
-        elif line.startswith('\\newlabel'):
-            info, _ = parseRecursiveBrackets(line, len('\\newlabel'))
-            # print(info, file=sys.stderr)
-            assert(len(info) == 2)
-            if info[0].endswith('@cref'):
-                assert len(output) > 0
-                prevD = output[-1]
-                assert info[0][:-5] == prevD['texLabel']
-                assert info[1][0][0] == '['
-                closeI = info[1][0].find(']')
-                assert closeI != -1
-                type = info[1][0][1:closeI]
-                prevD['type'] = type
-            else:
-                assert deflesh(info) == [None, [None] * 5]
-                anchor = info[1][3]
-                if '.' in anchor:
-                    type = anchor.split('.')[0]
-                d = {'type': type, 'texLabel': info[0], 'outputId': info[1][0], 'anchor': anchor, 'page': info[1][1]}
-                if info[1][2]:
-                    d['context'] = info[1][2]
-                if info[1][4]:
-                    d['misc'] = info[1][4]
-                output.append(d)
+        try:
+            if line.startswith('\\bibcite'):
+                if include_bib:
+                    info, _ = parseRecursiveBrackets(line, len('\\bibcite'))
+                    assert len(info) == 2
+                    output.append({'type': 'cite', 'texLabel': info[0], 'anchor': 'cite.' + info[0]})
+            elif line.startswith('\\newlabel'):
+                info, _ = parseRecursiveBrackets(line, len('\\newlabel'))
+                # print(info, file=sys.stderr)
+                assert(len(info) == 2)
+                if info[0].endswith('@cref'):
+                    assert len(output) > 0
+                    prevD = output[-1]
+                    assert info[0][:-5] == prevD['texLabel']
+                    assert info[1][0][0] == '['
+                    closeI = info[1][0].find(']')
+                    assert closeI != -1
+                    type = info[1][0][1:closeI]
+                    prevD['type'] = type
+                else:
+                    assert deflesh(info) == [None, [None] * 5]
+                    anchor = info[1][3]
+                    if '.' in anchor:
+                        type = anchor.split('.')[0]
+                    d = {'type': type, 'texLabel': info[0], 'outputId': info[1][0], 'anchor': anchor, 'page': info[1][1]}
+                    if info[1][2]:
+                        d['context'] = info[1][2]
+                    if info[1][4]:
+                        d['misc'] = info[1][4]
+                    output.append(d)
+        except Exception as e:
+            print('An error occurred while parsing this line:', file=sys.stderr)
+            print(line, file=sys.stderr)
+            raise e
     return output
 
 
