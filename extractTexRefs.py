@@ -97,8 +97,8 @@ def extractInfo(fp: TextIO, include_bib: bool):
                 else:
                     assert deflesh(info) == [None, [None] * 5]
                     anchor = info[1][3]
-                    if '.' in anchor:
-                        type = anchor.split('.')[0]
+                    assert '.' in anchor
+                    type = anchor.split('.')[0]
                     d = {'type': type, 'texLabel': info[0], 'outputId': info[1][0], 'anchor': anchor, 'page': info[1][1]}
                     if info[1][2]:
                         d['context'] = info[1][2]
