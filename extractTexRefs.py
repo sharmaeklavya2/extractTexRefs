@@ -8,6 +8,7 @@ bibliographic entries, theorems, definitions, sections, etc.
 from collections.abc import Sequence
 from typing import Any, Optional, TextIO
 import sys
+from os.path import splitext
 import argparse
 import json
 
@@ -128,20 +129,54 @@ def myJsonOutput(x: object, fp: TextIO):
         fp.write('\n')
 
 
+def changeRefType(x: str) -> str:
+    x = x.lower()
+    i = 0
+    while x.startswith('sub', i):
+        i += 3
+    x = x[i:]
+    return x.capitalize()
+
+
+def myTexOutput(objs: Sequence[Any], fp: TextIO):
+    for obj in objs:
+        if obj['type'] != 'cite':
+            line = '\\refinedLabel{%s}{%s}{%s}\n' % (obj['texLabel'], changeRefType(obj['type']), obj['outputId'])
+            fp.write(line)
+
+
+def writeOutput(objs: Sequence[Any], format: str, fp: TextIO):
+    if format == 'json':
+        myJsonOutput(objs, fp)
+    else:
+        myTexOutput(objs, fp)
+
+
+def inferFormat(args: Any):
+    if args.format is None:
+        if args.output is None:
+            args.format = 'json'
+        else:
+            _, ext = splitext(args.output)
+            args.format = 'tex' if ext == '.tex' else 'json'
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('fpath', help='path to LaTeX aux file')
-    parser.add_argument('-o', '--output', help='path to output JSON file')
+    parser.add_argument('-o', '--output', help='path to output JSON/TeX file')
+    parser.add_argument('-f', '--format', choices=('json', 'tex'))
     parser.add_argument('--include-bib', action='store_true', default=False,
         help='also include bibliography')
     args = parser.parse_args()
     with open(args.fpath) as fp:
         output = extractInfo(fp, args.include_bib)
-    if args.output:
-        with open(args.output, 'w') as fp:
-            myJsonOutput(output, fp)
+    inferFormat(args)
+    if args.output is None:
+        writeOutput(output, args.format, sys.stdout)
     else:
-        myJsonOutput(output, sys.stdout)
+        with open(args.output, 'w') as fp:
+            writeOutput(output, args.format, fp)
 
 
 if __name__ == '__main__':

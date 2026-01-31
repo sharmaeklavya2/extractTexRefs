@@ -9,6 +9,7 @@
 __pycache__/
 .mypy_cache/
 output.json
+output.tex
 
 *~
 *.sw[po]
