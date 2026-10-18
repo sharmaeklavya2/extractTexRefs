@@ -45,7 +45,9 @@ python3 extractTexRefs.py example/example.aux -o output.json
 
 Corresponding to each `\label` command in a TeX file, there is a line in the `.aux` file of the following format:
 
-```\newlabel{texLabel}{{outputId}{page}{context}{anchor}{misc}}```
+```tex
+\newlabel{texLabel}{{outputId}{page}{context}{anchor}{misc}}
+```
 
 There are addition lines if `\cite` commands are used
 or the [`cleveref`](https://ctan.org/pkg/cleveref) package is used.
