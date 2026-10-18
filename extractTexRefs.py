@@ -120,6 +120,18 @@ def restrictKeys(objs: Sequence[dict[str, Any]], keys: Sequence[str]) -> list[di
     return [{k: obj[k] for k in keys if k in obj} for obj in objs]
 
 
+def restrictTypes(objs: Sequence[dict[str, Any]], types: Sequence[str]) -> list[dict[str, Any]]:
+    typeSet = {t.lower() for t in types}
+    return [obj for obj in objs if obj['type'].lower() in typeSet]
+
+
+def parseTypes(s: str) -> list[str]:
+    types = [t.strip() for t in s.split(',') if t.strip()]
+    if not types:
+        raise argparse.ArgumentTypeError('no types specified')
+    return types
+
+
 def parseKeys(s: str) -> list[str]:
     keys = [k.strip() for k in s.split(',') if k.strip()]
     unknown = [k for k in keys if k not in ALL_KEYS]
@@ -190,10 +202,15 @@ def main() -> None:
         help='comma-separated list of keys to keep in each JSON object'
         ' (e.g., type,texLabel,outputId); other keys are dropped.'
         ' Valid keys: ' + ', '.join(ALL_KEYS))
+    parser.add_argument('-t', '--types', type=parseTypes,
+        help='comma-separated list of types (case-insensitive) of objects to keep'
+        ' (e.g., theorem,lemma,definition); objects of other types are dropped')
     args = parser.parse_args()
     with open(args.fpath) as fp:
         output = extractInfo(fp, args.include_bib)
     inferFormat(args)
+    if args.types is not None:
+        output = restrictTypes(output, args.types)
     if args.keys is not None:
         if args.format != 'json':
             parser.error('--keys is only supported for JSON output')
