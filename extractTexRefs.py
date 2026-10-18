@@ -11,6 +11,7 @@ import sys
 from os.path import splitext
 import argparse
 import json
+import csv
 
 
 def findEndBracket(s: str, beg: int, end: int) -> int:
@@ -175,9 +176,21 @@ def myTexOutput(objs: Sequence[Any], fp: TextIO):
             fp.write(line)
 
 
-def writeOutput(objs: Sequence[Any], format: str, fp: TextIO):
+def myCsvOutput(objs: Sequence[dict[str, Any]], fp: TextIO, keys: Optional[Sequence[str]] = None):
+    if keys is None:
+        # use all known keys that occur in at least one object
+        present = {k for obj in objs for k in obj}
+        keys = [k for k in ALL_KEYS if k in present]
+    writer = csv.DictWriter(fp, fieldnames=keys, extrasaction='ignore', lineterminator='\n')
+    writer.writeheader()
+    writer.writerows(objs)
+
+
+def writeOutput(objs: Sequence[Any], format: str, fp: TextIO, keys: Optional[Sequence[str]] = None):
     if format == 'json':
         myJsonOutput(objs, fp)
+    elif format == 'csv':
+        myCsvOutput(objs, fp, keys)
     else:
         myTexOutput(objs, fp)
 
@@ -188,18 +201,19 @@ def inferFormat(args: Any):
             args.format = 'json'
         else:
             _, ext = splitext(args.output)
-            args.format = 'tex' if ext == '.tex' else 'json'
+            args.format = {'.tex': 'tex', '.csv': 'csv'}.get(ext.lower(), 'json')
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('fpath', help='path to LaTeX aux file')
-    parser.add_argument('-o', '--output', help='path to output JSON/TeX file')
-    parser.add_argument('-f', '--format', choices=('json', 'tex'))
+    parser.add_argument('-o', '--output', help='path to output JSON/TeX/CSV file')
+    parser.add_argument('-f', '--format', choices=('json', 'tex', 'csv'),
+        help='output format (default: inferred from the extension of --output, else json)')
     parser.add_argument('--include-bib', action='store_true', default=False,
         help='also include bibliography')
     parser.add_argument('-k', '--keys', type=parseKeys,
-        help='comma-separated list of keys to keep in each JSON object'
+        help='comma-separated list of keys to keep in each JSON object (or columns in CSV)'
         ' (e.g., type,texLabel,outputId); other keys are dropped.'
         ' Valid keys: ' + ', '.join(ALL_KEYS))
     parser.add_argument('-t', '--types', type=parseTypes,
@@ -212,14 +226,14 @@ def main() -> None:
     if args.types is not None:
         output = restrictTypes(output, args.types)
     if args.keys is not None:
-        if args.format != 'json':
-            parser.error('--keys is only supported for JSON output')
+        if args.format == 'tex':
+            parser.error('--keys is not supported for TeX output')
         output = restrictKeys(output, args.keys)
     if args.output is None:
-        writeOutput(output, args.format, sys.stdout)
+        writeOutput(output, args.format, sys.stdout, args.keys)
     else:
-        with open(args.output, 'w') as fp:
-            writeOutput(output, args.format, fp)
+        with open(args.output, 'w', newline='') as fp:
+            writeOutput(output, args.format, fp, args.keys)
 
 
 if __name__ == '__main__':
