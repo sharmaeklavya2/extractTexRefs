@@ -113,6 +113,24 @@ def extractInfo(fp: TextIO, include_bib: bool):
     return output
 
 
+ALL_KEYS = ('type', 'texLabel', 'outputId', 'anchor', 'page', 'context', 'misc')
+
+
+def restrictKeys(objs: Sequence[dict[str, Any]], keys: Sequence[str]) -> list[dict[str, Any]]:
+    return [{k: obj[k] for k in keys if k in obj} for obj in objs]
+
+
+def parseKeys(s: str) -> list[str]:
+    keys = [k.strip() for k in s.split(',') if k.strip()]
+    unknown = [k for k in keys if k not in ALL_KEYS]
+    if unknown:
+        raise argparse.ArgumentTypeError('unknown key(s): {}. Valid keys: {}'.format(
+            ', '.join(unknown), ', '.join(ALL_KEYS)))
+    if not keys:
+        raise argparse.ArgumentTypeError('no keys specified')
+    return keys
+
+
 def myJsonOutput(x: object, fp: TextIO):
     if isinstance(x, list) or isinstance(x, tuple):
         n = len(x)
@@ -168,10 +186,18 @@ def main() -> None:
     parser.add_argument('-f', '--format', choices=('json', 'tex'))
     parser.add_argument('--include-bib', action='store_true', default=False,
         help='also include bibliography')
+    parser.add_argument('-k', '--keys', type=parseKeys,
+        help='comma-separated list of keys to keep in each JSON object'
+        ' (e.g., type,texLabel,outputId); other keys are dropped.'
+        ' Valid keys: ' + ', '.join(ALL_KEYS))
     args = parser.parse_args()
     with open(args.fpath) as fp:
         output = extractInfo(fp, args.include_bib)
     inferFormat(args)
+    if args.keys is not None:
+        if args.format != 'json':
+            parser.error('--keys is only supported for JSON output')
+        output = restrictKeys(output, args.keys)
     if args.output is None:
         writeOutput(output, args.format, sys.stdout)
     else:
