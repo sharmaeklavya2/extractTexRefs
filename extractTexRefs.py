@@ -114,11 +114,20 @@ def extractInfo(fp: TextIO, include_bib: bool):
     return output
 
 
+# Objects whose texLabel contains any of these substrings are dropped
+# (unless --keep-forbidden is passed).
+FORBIDDEN_LABEL_SUBSTRINGS = ('@@',)
+
 ALL_KEYS = ('type', 'texLabel', 'outputId', 'anchor', 'page', 'context', 'misc')
 
 
 def restrictKeys(objs: Sequence[dict[str, Any]], keys: Sequence[str]) -> list[dict[str, Any]]:
     return [{k: obj[k] for k in keys if k in obj} for obj in objs]
+
+
+def dropForbiddenLabels(objs: Sequence[dict[str, Any]],
+        forbidden: Sequence[str] = FORBIDDEN_LABEL_SUBSTRINGS) -> list[dict[str, Any]]:
+    return [obj for obj in objs if not any(f in obj['texLabel'] for f in forbidden)]
 
 
 def restrictTypes(objs: Sequence[dict[str, Any]], types: Sequence[str]) -> list[dict[str, Any]]:
@@ -219,10 +228,15 @@ def main() -> None:
     parser.add_argument('-t', '--types', type=parseTypes,
         help='comma-separated list of types (case-insensitive) of objects to keep'
         ' (e.g., theorem,lemma,definition); objects of other types are dropped')
+    parser.add_argument('--keep-forbidden', action='store_true', default=False,
+        help='keep labels containing forbidden substrings (by default, labels containing any of '
+        + repr(FORBIDDEN_LABEL_SUBSTRINGS) + ' are dropped)')
     args = parser.parse_args()
     with open(args.fpath) as fp:
         output = extractInfo(fp, args.include_bib)
     inferFormat(args)
+    if not args.keep_forbidden:
+        output = dropForbiddenLabels(output)
     if args.types is not None:
         output = restrictTypes(output, args.types)
     if args.keys is not None:
